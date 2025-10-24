@@ -88,15 +88,15 @@ AudioMixerController:
   m_UpdateMode: 0
   m_ExposedParameters:
   - guid: c5147e60035fe7b44bec5009bc254c20
-    name: AmbienceVolume
+    name: Ambience
   - guid: 0e5971be85424f74593d207cd446054c
     name: MasterVolume
   - guid: d47b7bfbd4112d041b3d25f8d7d1a1d2
     name: MusicVolume
   - guid: ec01bba7795267143898d9f7e3fee61c
-    name: SFXVolume
+    name: VFXVolume
   - guid: f6dd081e4898e364e9de6720095956c0
-    name: UIVolume
+    name: UI
   - guid: 5f78ca44a60f8b849b378b49665aa5a3
     name: VoiceVolume
   m_AudioMixerGroupViews:

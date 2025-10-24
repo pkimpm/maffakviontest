@@ -31,10 +31,6 @@ public class FinalScreenManager : MonoBehaviour
     [SerializeField] private CanvasGroup blackoutPanel;
     [SerializeField] private float blackoutDuration = 1.5f;
 
-    [Header("Звуки")] // 🔥 Новый раздел
-    [SerializeField] private string buttonClickSound = "sound_ui_buttonclick_add";
-    [SerializeField] private string buttonHoverSound = "sound_ui_buttonhover";
-
     private bool isCopyButtonResetScheduled;
 
     private void Awake()
@@ -50,45 +46,10 @@ public class FinalScreenManager : MonoBehaviour
         }
 
         copyButton.onClick.RemoveAllListeners();
-        copyButton.onClick.AddListener(() => 
-        {
-            PlayButtonClick();
-            CopyPromoCode();
-        });
-        AddHoverSound(copyButton);
+        copyButton.onClick.AddListener(CopyPromoCode);
 
         closeButton.onClick.RemoveAllListeners();
-        closeButton.onClick.AddListener(() => 
-        {
-            PlayButtonClick();
-            StartCoroutine(CloseGameSequence());
-        });
-        AddHoverSound(closeButton);
-    }
-
-    private void PlayButtonClick()
-    {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayUI(buttonClickSound);
-        }
-    }
-
-    private void AddHoverSound(Button button)
-    {
-        if (button == null) return;
-
-        var trigger = button.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
-        var entry = new UnityEngine.EventSystems.EventTrigger.Entry();
-        entry.eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter;
-        entry.callback.AddListener((data) => 
-        {
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlayUI(buttonHoverSound);
-            }
-        });
-        trigger.triggers.Add(entry);
+        closeButton.onClick.AddListener(() => StartCoroutine(CloseGameSequence()));
     }
 
     public void Show()

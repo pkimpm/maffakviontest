@@ -13,65 +13,17 @@ MonoBehaviour:
   m_Name: MainSoundLibrary
   m_EditorClassIdentifier: 
   music:
-  - name: bedroom
-    clip: {fileID: 8300000, guid: 50840e0d74d2c3b41ba638d07888e0db, type: 3}
-  - name: hall
-    clip: {fileID: 8300000, guid: 1d544bf45679915499d172d48150d79b, type: 3}
-  - name: dark
-    clip: {fileID: 8300000, guid: 8e315b749345b014699e00d2f7260136, type: 3}
-  - name: happyend
-    clip: {fileID: 8300000, guid: 1dd8f0489999d0043931611b387e8beb, type: 3}
-  - name: kitchen
-    clip: {fileID: 8300000, guid: ed38e2005d1518c47a6e72fcec53c4a6, type: 3}
-  - name: park
-    clip: {fileID: 8300000, guid: b1ef6442e5f34fd43921a470d299df37, type: 3}
-  ambience:
-  - name: amb_bedroom_loop
-    clip: {fileID: 8300000, guid: 4641b51ff38fcc6429c0a596f6bb77c1, type: 3}
-  - name: amb_hall_loop
-    clip: {fileID: 8300000, guid: c85accd083def3c4688852403bba5cf5, type: 3}
-  - name: amb_kitchen_loop
-    clip: {fileID: 8300000, guid: 7141d6b73eccfe44585481488709dc09, type: 3}
-  - name: amb_park_loop
-    clip: {fileID: 8300000, guid: e7fe466021ac5534aa28d44dd911f5bb, type: 3}
-  - name: amb_transition_loop
-    clip: {fileID: 8300000, guid: da348954ead9ebc4997f38092dd3402b, type: 3}
-  - name: amb_transition_whoosh
-    clip: {fileID: 8300000, guid: 93cc7de00f20c674bafc758ff543251f, type: 3}
-  ui:
-  - name: sound_ui_dialoguenextbutton
-    clip: {fileID: 8300000, guid: 77936d9ab3dfc184dba047f5be0ac79f, type: 3}
-  - name: sound_ui_buttonclick_add
-    clip: {fileID: 8300000, guid: 79d53ec74abc1e94d891c542dbba4345, type: 3}
-  - name: sound_ui_buttonhover
-    clip: {fileID: 8300000, guid: c7c06f7763654204aafd5a22786128a3, type: 3}
-  - name: sound_ui_weaponspawn
-    clip: {fileID: 8300000, guid: 917d2ad88a653c14c83ce55ff97474f0, type: 3}
-  - name: sound_ui_weaponuse
-    clip: {fileID: 8300000, guid: ef9d76037b001284f8f1a2f0ed870f91, type: 3}
-  - name: sound_ui_puzzledone
-    clip: {fileID: 8300000, guid: 2a47367213666fb4da8aa6f001210bf0, type: 3}
-  - name: sound_ui_puzzledrop
-    clip: {fileID: 8300000, guid: 09cd42ca707d3624caa6bce656ef847c, type: 3}
-  - name: sound_ui_puzzledrug
-    clip: {fileID: 8300000, guid: b68ce7bc88f41ad42b145a26384e643f, type: 3}
-  sfx:
-  - name: sfx_punch_00
-    clip: {fileID: 8300000, guid: 1a5fd93cb340b62418970c48712beae7, type: 3}
-  - name: sfx_punch_01
-    clip: {fileID: 8300000, guid: 51af47e13a2864e4f820b094573553ff, type: 3}
-  - name: sfx_punch_02
-    clip: {fileID: 8300000, guid: 36e6453b06dc26b4e9c8e5e23ae58c1f, type: 3}
-  - name: sfx_punch_03
-    clip: {fileID: 8300000, guid: b82da786e7af0304eac33c91389a671a, type: 3}
-  - name: sfx_punch_04
-    clip: {fileID: 8300000, guid: 300870112a96e35428bcd4873fde0437, type: 3}
-  - name: sfx_spelloff
-    clip: {fileID: 8300000, guid: 5ac15b1e2c1dadd48bf9af1f9fd8f8bd, type: 3}
-  - name: sfx_spelloff_lastpunch
-    clip: {fileID: 8300000, guid: 16e6a39610db35b4cbbaa3347ccdb0bb, type: 3}
-  - name: sfx_spellon_statue
-    clip: {fileID: 8300000, guid: 91fe2ccd45583d9449c5118e7634daa5, type: 3}
-  - name: sfx_velianspawn
-    clip: {fileID: 8300000, guid: e1d2ee72ef54d164aa7658056c206316, type: 3}
+  - name: 1
+    clip: {fileID: 8300000, guid: 9c8cc88295f36cb4ebc80034ae98f3c2, type: 3}
+  - name: 2
+    clip: {fileID: 8300000, guid: 76413fcbb4a86c14a9239e28e8e36def, type: 3}
+  - name: 3
+    clip: {fileID: 8300000, guid: bb8b5efc8a5618d4e8dd333d298f5586, type: 3}
+  - name: 4
+    clip: {fileID: 8300000, guid: eefd39ae8e450d440a71631b56307ece, type: 3}
+  - name: 5
+    clip: {fileID: 8300000, guid: 6f1d9520090ef5f45be918a6227d2f90, type: 3}
+  ambience: []
+  ui: []
+  sfx: []
   footsteps: []

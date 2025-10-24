@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class FinalBattleManager : MonoBehaviour
 {
@@ -26,28 +27,6 @@ public class FinalBattleManager : MonoBehaviour
     [SerializeField] private GameObject villainObject;
     [SerializeField] private float villainActivationDelay = 0.5f;
 
-    [Header("Звуки заклинаний")]
-    [Tooltip("Звук заклинания SpellOn (активация статуи)")]
-    [SerializeField] private string spellOnSound = "sfx_spellon_statue";
-    
-    [Tooltip("Звук заклинания SpellOff после 5-го удара")]
-    [SerializeField] private string spellOffLastPunchSound = "sfx_spelloff_lastpunch";
-    
-    [Tooltip("Звук появления злодейки")]
-    [SerializeField] private string villainSpawnSound = "sfx_velianspawn";
-
-    [Header("VFX для SpellOn")]
-    [Tooltip("VFX которые активируются при SpellOn (исцеление статуи)")]
-    [SerializeField] private ParticleSystem[] spellOnVFX;
-
-    [Header("VFX для SpellOff")]
-    [Tooltip("VFX которые активируются при SpellOff (после победы)")]
-    [SerializeField] private ParticleSystem[] spellOffVFX;
-
-    [Header("VFX для появления злодейки")]
-    [Tooltip("VFX которые активируются при появлении злодейки")]
-    [SerializeField] private ParticleSystem[] villainSpawnVFX;
-
     public event Action OnBattleFinished;
 
     private void Awake()
@@ -66,27 +45,11 @@ public class FinalBattleManager : MonoBehaviour
 
     private IEnumerator ActivateVillainCoroutine()
     {
-        Debug.Log($"🎬 [{Time.frameCount}] Starting villain activation...");
-        
         yield return new WaitForSeconds(villainActivationDelay);
         
         if (villainObject != null)
         {
             villainObject.SetActive(true);
-            Debug.Log($"✅ [{Time.frameCount}] Villain object activated");
-            
-            yield return null;
-            yield return null;
-            
-            PlaySoundUnpausable(villainSpawnSound);
-            PlayVFXList(villainSpawnVFX);
-            
-            Debug.Log($"🔊 [{Time.frameCount}] Villain spawn sound and VFX triggered");
-        }
-
-        if (villain != null)
-        {
-            villain.EnableTargetingSilent();
         }
     }
 
@@ -108,12 +71,9 @@ public class FinalBattleManager : MonoBehaviour
         if (itemPanel != null)
             itemPanel.OnContinue -= OnItemConfirmed;
 
-        if (weaponModel != null) 
-            weaponModel.SetActive(true);
-        
-        if (battleInput != null) 
-            battleInput.enabled = true;
-
+        if (weaponModel != null) weaponModel.SetActive(true);
+        if (battleInput != null) battleInput.enabled = true;
+        if (villain != null) villain.EnableTargeting();
     }
 
     private void HandleBattleFinished()
@@ -121,18 +81,12 @@ public class FinalBattleManager : MonoBehaviour
         if (battleInput != null)
             battleInput.enabled = false;
 
-        PlaySoundUnpausable(spellOffLastPunchSound);
-        PlayVFXList(spellOffVFX);
-
         StartCoroutine(PlayStatueHealingAnimation());
     }
 
     private IEnumerator PlayStatueHealingAnimation()
     {
         yield return new WaitForSeconds(delayBeforeAnimation);
-
-        PlaySoundUnpausable(spellOnSound);
-        PlayVFXList(spellOnVFX);
 
         foreach (var go in objectsToEnable)
             if (go != null) go.SetActive(true);
@@ -195,26 +149,6 @@ public class FinalBattleManager : MonoBehaviour
         }
 
         OnBattleFinished?.Invoke();
-    }
-
-    private void PlaySoundUnpausable(string soundName)
-    {
-        if (string.IsNullOrEmpty(soundName)) return;
-        if (AudioManager.Instance == null || AudioManager.Instance.soundLibrary == null) return;
-        
-        AudioClip clip = AudioManager.Instance.soundLibrary.GetClip(soundName);
-        if (clip == null) return;
-
-        AudioManager.Instance.PlaySFXUnpausable(soundName);
-    }
-
-    private void PlayVFXList(ParticleSystem[] vfxList)
-    {
-        if (vfxList == null) return;
-        foreach (var vfx in vfxList)
-        {
-            if (vfx != null) vfx.Play();
-        }
     }
     
     public PuzzleInput GetBattleInput()

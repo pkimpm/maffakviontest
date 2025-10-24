@@ -11,10 +11,6 @@ public class GoalPanel : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private LeanTweenType fadeEase = LeanTweenType.easeInOutQuad;
 
-    [Header("Звуки")] // 🔥 Новый раздел
-    [SerializeField] private string buttonClickSound = "sound_ui_buttonclick_add";
-    [SerializeField] private string buttonHoverSound = "sound_ui_buttonhover";
-
     private bool isOpen;
 
     private void Awake()
@@ -23,41 +19,8 @@ public class GoalPanel : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
 
-        if (closeButton != null)
-        {
-            closeButton.onClick.RemoveAllListeners();
-            closeButton.onClick.AddListener(() =>
-            {
-                PlayButtonClick();
-                Hide();
-            });
-            AddHoverSound(closeButton);
-        }
-    }
-
-    private void PlayButtonClick()
-    {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayUI(buttonClickSound);
-        }
-    }
-
-    private void AddHoverSound(Button button)
-    {
-        if (button == null) return;
-
-        var trigger = button.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
-        var entry = new UnityEngine.EventSystems.EventTrigger.Entry();
-        entry.eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter;
-        entry.callback.AddListener((data) => 
-        {
-            if (AudioManager.Instance != null && button.interactable)
-            {
-                AudioManager.Instance.PlayUI(buttonHoverSound);
-            }
-        });
-        trigger.triggers.Add(entry);
+        closeButton.onClick.RemoveAllListeners();
+        closeButton.onClick.AddListener(Hide);
     }
 
     public void Show(GoalData data)

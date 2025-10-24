@@ -24,7 +24,6 @@ public class DialogueManager : MonoBehaviour
             dialogueView.OnContinueClick += OnContinueClicked;
             dialogueView.Hide();
         }
-        
         IsDialogueActive = false;
         FindAllPuzzleInputs();
     }
@@ -42,50 +41,13 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (!IsDialogueActive || dialogueView == null || currentNode == null) return;
-
-        bool shouldBeLocked = ShouldButtonBeLockedNow();
-
-        if (shouldBeLocked && dialogueView.IsButtonInteractable())
-        {
-            dialogueView.ForceDisableButton();
-            Debug.LogWarning("⚠️ Кнопка принудительно заблокирована в Update!");
-        }
-        else if (!shouldBeLocked && !dialogueView.IsButtonInteractable() && !dialogueView.IsProcessingClick())
-        {
-            dialogueView.SetContinueInteractable(true);
-            Debug.Log("✅ Кнопка разблокирована в Update.");
-        }
-    }
-
-    private bool ShouldButtonBeLockedNow()
-    {
-        if (currentNode == null) return true;
-        if (isTransitioning) return true;
-
-        if (FocusManager.Instance != null && !FocusManager.Instance.IsApplicationFocused)
-        {
-            return true;
-        }
-
-        if (currentNode.blockUntilCutsceneEnd && 
-            playableDirector != null && 
-            playableDirector.state == PlayState.Playing)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     public void StartDialogue(DialogueNode node)
     {
         if (node == null || IsDialogueActive) return;
-        
+
         IsDialogueActive = true; 
-        isTransitioning = true;
+        isTransitioning = false;
+        
         DisableAllPuzzleInputs();
         RunNode(node);
     }
@@ -93,52 +55,68 @@ public class DialogueManager : MonoBehaviour
     private void DisableAllPuzzleInputs()
     {
         if (allPuzzleInputs == null || allPuzzleInputs.Length == 0) FindAllPuzzleInputs();
+        
         foreach (var input in allPuzzleInputs)
         {
-            if (input != null && input.enabled) input.enabled = false;
+            if (input != null && input.enabled)
+            {
+                input.enabled = false;
+            }
         }
     }
 
     private void RunNode(DialogueNode node)
     {
-        if (node == null) return;
-        
         currentNode = node;
-        isTransitioning = true;
 
         if (node.resumeCutsceneOnStart && playableDirector != null && playableDirector.state != PlayState.Playing)
         {
             playableDirector.Play();
         }
 
-        if (dialogueView == null) return;
-        
         dialogueView.Show();
         dialogueView.SetContent(node);
-
-        if (node.voiceClip != null && AudioManager.Instance != null)
+        if (node.voiceClip != null)
         {
             AudioManager.Instance.PlayVoice(node.voiceClip);
         }
-        
-        dialogueView.ForceDisableButton();
+
+        dialogueView.SetContinueInteractable(false);
+
+        if (node.blockUntilCutsceneEnd && playableDirector != null && playableDirector.state == PlayState.Playing)
+        {
+            StartCoroutine(WaitForCutscene(node));
+        }
+        else
+        {
+            ExecuteNodeLogic(node);
+        }
+    }
+
+    private IEnumerator WaitForCutscene(DialogueNode node)
+    {
+        yield return new WaitUntil(() => playableDirector == null || playableDirector.state != PlayState.Playing);
         ExecuteNodeLogic(node);
     }
 
     private void ExecuteNodeLogic(DialogueNode node)
     {
-        if (node == null) return;
-
         node.Execute(this, () =>
         {
-            isTransitioning = false;
+            if (!node.blockContinueOnStart)
+            {
+                dialogueView.SetContinueInteractable(true);
+            }
         });
     }
 
     private void OnContinueClicked()
     {
-        if (currentNode == null || !IsDialogueActive || isTransitioning) return;
-        
+        if (currentNode == null || !IsDialogueActive || isTransitioning) 
+        {
+            return;
+        }
+
         isTransitioning = true;
         dialogueView.SetContinueInteractable(false);
 
@@ -146,18 +124,19 @@ public class DialogueManager : MonoBehaviour
         {
             playableDirector.Pause();
         }
-        
+
         if (currentNode is TriggerBattleNode battleNode && !isWaitingForBattle)
         {
             isWaitingForBattle = true;
-            battleNode.StartBattle(this, () => 
-            { 
-                isWaitingForBattle = false; 
-                ContinueAfterBattle(); 
+            
+            battleNode.StartBattle(this, () =>
+            {
+                isWaitingForBattle = false;
+                ContinueAfterBattle();
             });
             return;
         }
-        
+
         if (currentNode.isLast || currentNode.nextNode == null)
         {
             EndDialogue();
@@ -172,12 +151,16 @@ public class DialogueManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         RunNode(nextNode);
+        isTransitioning = false;
     }
 
     private void ContinueAfterBattle()
     {
-        if (dialogueView != null) dialogueView.Show();
-        
+        if (dialogueView != null)
+        {
+            dialogueView.Show();
+        }
+
         if (currentNode != null && currentNode.nextNode != null)
         {
             StartCoroutine(TransitionToNextNode(currentNode.nextNode));
@@ -193,9 +176,7 @@ public class DialogueManager : MonoBehaviour
         IsDialogueActive = false; 
         isTransitioning = false;
         currentNode = null;
-        
-        if (dialogueView != null) dialogueView.Hide();
-        
+        dialogueView.Hide();
         OnDialogueEnd?.Invoke();
     }
     

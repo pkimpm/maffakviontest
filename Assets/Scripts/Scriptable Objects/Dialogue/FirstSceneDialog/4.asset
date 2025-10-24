@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc775cc8bb7453745a7acb3be3dba9e9, type: 3}
+  m_Script: {fileID: 11500000, guid: 8daaa13e66c671d4592aade75fa98e9f, type: 3}
   m_Name: 4
   m_EditorClassIdentifier: 
   nodeId: 4
@@ -27,5 +27,3 @@ MonoBehaviour:
   blockUntilCutsceneEnd: 0
   nextNode: {fileID: 11400000, guid: 70de9601db65dca4c891074d37fda7f4, type: 2}
   isLast: 0
-  musicName: dark
-  fadeDuration: 2

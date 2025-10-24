@@ -7,34 +7,25 @@ public class AudioManager : MonoBehaviour
 
     [Header("Микшер и Библиотека")]
     [SerializeField] private AudioMixer mainMixer;
-    [SerializeField] public SoundLibrary soundLibrary;
+    [SerializeField] private SoundLibrary soundLibrary;
 
     [Header("Настройки громкости для кода")]
     [Tooltip("Стандартная громкость музыки (от 0 до 1)")]
     public float defaultMusicVolume = 1.0f;
-    
+    [Tooltip("Громкость музыки во время диалогов (от 0 до 1)")]
+    public float dialogueMusicVolume = 0.3f;
     [Tooltip("Стандартная громкость эмбиента (от 0 до 1)")]
     public float defaultAmbienceVolume = 0.8f;
 
     private AudioSource _musicSource1, _musicSource2;
     private AudioSource _ambienceSource1, _ambienceSource2;
     private AudioSource _uiSource, _sfxSource, _voiceSource;
-    private AudioSource _unpausableSFXSource; 
     private bool _isMusicSource1Active = true;
     private bool _isAmbienceSource1Active = true;
 
     private void Awake()
     {
-        if (Instance == null) 
-        { 
-            Instance = this; 
-            DontDestroyOnLoad(gameObject); 
-        } 
-        else 
-        { 
-            Destroy(gameObject); 
-            return; 
-        }
+        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); } else { Destroy(gameObject); return; }
 
         _musicSource1 = gameObject.AddComponent<AudioSource>(); 
         _musicSource2 = gameObject.AddComponent<AudioSource>();
@@ -43,7 +34,6 @@ public class AudioManager : MonoBehaviour
         _uiSource = gameObject.AddComponent<AudioSource>(); 
         _sfxSource = gameObject.AddComponent<AudioSource>();
         _voiceSource = gameObject.AddComponent<AudioSource>();
-        _unpausableSFXSource = gameObject.AddComponent<AudioSource>(); 
         
         _musicSource1.outputAudioMixerGroup = GetGroup("Music"); 
         _musicSource2.outputAudioMixerGroup = GetGroup("Music");
@@ -52,7 +42,6 @@ public class AudioManager : MonoBehaviour
         _uiSource.outputAudioMixerGroup = GetGroup("UI");
         _sfxSource.outputAudioMixerGroup = GetGroup("SFX");
         _voiceSource.outputAudioMixerGroup = GetGroup("Voice");
-        _unpausableSFXSource.outputAudioMixerGroup = GetGroup("SFX");
 
         _musicSource1.loop = true; 
         _musicSource1.spatialBlend = 0.0f; 
@@ -66,26 +55,8 @@ public class AudioManager : MonoBehaviour
         _voiceSource.spatialBlend = 0.0f; 
         _uiSource.spatialBlend = 0.0f; 
         _sfxSource.spatialBlend = 0.0f;
-   
-        _unpausableSFXSource.loop = false;
-        _unpausableSFXSource.spatialBlend = 0.0f;
-        _unpausableSFXSource.ignoreListenerPause = true; 
         
         if (soundLibrary != null) soundLibrary.Initialize();
-        
-        InitializeDefaultVolumes();
-    }
-
-    private void InitializeDefaultVolumes()
-    {
-        SetMasterVolume(1f);
-        SetMusicVolume(1f);
-        SetAmbienceVolume(1f);
-        SetVoiceVolume(1f);
-        SetSFXVolume(1f);
-        SetUIVolume(1f);
-
-        Debug.Log("🔊 AudioManager: Default volumes initialized to maximum");
     }
 
     private AudioMixerGroup GetGroup(string groupName)
@@ -142,6 +113,16 @@ public class AudioManager : MonoBehaviour
         _isAmbienceSource1Active = !_isAmbienceSource1Active;
     }
 
+    public void FadeMusicVolume(float targetVolume, float duration)
+    {
+        AudioSource activeSource = _isMusicSource1Active ? _musicSource1 : _musicSource2;
+        if (activeSource == null) return;
+        LeanTween.value(gameObject, activeSource.volume, targetVolume, duration)
+            .setOnUpdate((float vol) => {
+                if (activeSource != null) activeSource.volume = vol;
+            });
+    }
+
     public void PlayUI(string soundName)
     {
         AudioClip clip = soundLibrary.GetClip(soundName);
@@ -153,20 +134,6 @@ public class AudioManager : MonoBehaviour
         AudioClip clip = soundLibrary.GetClip(soundName);
         if (clip != null && _sfxSource != null) _sfxSource.PlayOneShot(clip);
     }
-
-    public void PlaySFXUnpausable(string soundName)
-    {
-        AudioClip clip = soundLibrary.GetClip(soundName);
-        if (clip != null && _unpausableSFXSource != null)
-        {
-            _unpausableSFXSource.PlayOneShot(clip);
-            Debug.Log($"🔊 Playing unpausable SFX: {soundName}");
-        }
-        else
-        {
-            Debug.LogWarning($"⚠️ Cannot play unpausable SFX: {soundName}");
-        }
-    }
     
     public void PlayVoice(AudioClip voiceClip)
     {
@@ -177,48 +144,10 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void StopAllAudio()
-    {
-        if (_musicSource1 != null)
-        {
-            _musicSource1.Stop();
-            _musicSource1.volume = 0f;
-        }
-        if (_musicSource2 != null)
-        {
-            _musicSource2.Stop();
-            _musicSource2.volume = 0f;
-        }
-
-        if (_ambienceSource1 != null)
-        {
-            _ambienceSource1.Stop();
-            _ambienceSource1.volume = 0f;
-        }
-        if (_ambienceSource2 != null)
-        {
-            _ambienceSource2.Stop();
-            _ambienceSource2.volume = 0f;
-        }
-
-        if (_voiceSource != null)
-        {
-            _voiceSource.Stop();
-        }
-
-        LeanTween.cancel(gameObject);
-
-        Debug.Log("🔇 All audio stopped");
-    }
-
     public void SetMasterVolume(float value) => SetVolume("MasterVolume", value);
     public void SetMusicVolume(float value) => SetVolume("MusicVolume", value);
-    public void SetAmbienceVolume(float value) => SetVolume("AmbienceVolume", value);
     public void SetVoiceVolume(float value) => SetVolume("VoiceVolume", value);
-    public void SetSFXVolume(float value) => SetVolume("SFXVolume", value);
-    public void SetUIVolume(float value) => SetVolume("UIVolume", value);
-
-    public void SetVFXVolume(float value) => SetVolume("SFXVolume", value);
+    public void SetVFXVolume(float value) => SetVolume("VFXVolume", value);
 
     private void SetVolume(string exposedParam, float value)
     {
