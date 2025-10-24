@@ -12,8 +12,12 @@ public class RoomContent
     public GameObject root;
     public CinemachineVirtualCamera camera;
     
+    [Header("Аудио")]
     [Tooltip("Имя музыки из SoundLibrary")]
     public string musicName;
+    
+    [Tooltip("Имя эмбиента из SoundLibrary")]
+    public string ambienceName;
 
     [Header("Диалоги")]
     public DialogueNode beforeDialogue;
@@ -40,6 +44,10 @@ public class GameManager : MonoBehaviour
     [Header("Настройки")]
     [SerializeField] private float fadeDuration = 1f;
     [SerializeField] private RoomContent[] rooms;
+    
+    [Header("Аудио настройки")]
+    [Tooltip("Длительность кроссфейда ambience")]
+    [SerializeField] private float ambienceFadeDuration = 2f;
     
     private int _currentRoomIndex = -1;
     private CinemachineVirtualCamera _lastActiveCamera;
@@ -141,7 +149,7 @@ public class GameManager : MonoBehaviour
                 if (room.puzzleInput != null) room.puzzleInput.enabled = false;
             }
 
-            yield return PlayOptionalDialogue(room.afterDialogue);
+            yield return PlayDialogue(room.afterDialogue);
 
             if (room.railSequence != null)
             {
@@ -154,7 +162,23 @@ public class GameManager : MonoBehaviour
                 }
 
                 yield return null;
+
+                bool sequenceFinished = false;
+                Action onFinish = () => sequenceFinished = true;
+                room.railSequence.OnSequenceFinished += onFinish;
+                
                 yield return room.railSequence.PlaySequence();
+ 
+                yield return new WaitUntil(() => sequenceFinished);
+                room.railSequence.OnSequenceFinished -= onFinish;
+                
+                Debug.Log("✅ Rail sequence finished. Checking for final battle...");
+
+                if (room.finalBattle != null)
+                {
+                    Debug.Log("🔥 Activating villain!");
+                    room.finalBattle.ActivateVillain();
+                }
             }
         }
         
@@ -172,19 +196,16 @@ public class GameManager : MonoBehaviour
         
         if (room.camera != null) room.camera.Priority = 10;
         if (room.puzzleInput != null) room.puzzleInput.enabled = false;
-        
-        if (!string.IsNullOrEmpty(room.musicName))
+
+        if (!string.IsNullOrEmpty(room.musicName) && AudioManager.Instance != null)
         {
             AudioManager.Instance.CrossfadeMusic(room.musicName, fadeDuration);
         }
-    }
 
-    private IEnumerator PlayOptionalDialogue(DialogueNode node)
-    {
-        if (node == null || wasAfterDialoguePlayed) yield break;
-        AudioManager.Instance.FadeMusicVolume(AudioManager.Instance.dialogueMusicVolume, fadeDuration * 0.5f);
-        yield return PlayDialogue(node);
-        AudioManager.Instance.FadeMusicVolume(AudioManager.Instance.defaultMusicVolume, fadeDuration * 0.5f);
+        if (!string.IsNullOrEmpty(room.ambienceName) && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.CrossfadeAmbience(room.ambienceName, ambienceFadeDuration);
+        }
     }
     
     private IEnumerator PlayDialogue(DialogueNode node)

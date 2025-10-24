@@ -24,6 +24,19 @@ public class VillainController : MonoBehaviour
     [SerializeField] private float damageFlashIntensity = 1.5f;
     [SerializeField] private AnimationCurve damageFlashCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
+    [Header("Звуки ударов")]
+    [Tooltip("Звуки для первых 4 ударов")]
+    [SerializeField] private string[] punchSounds = new string[]
+    {
+        "sfx_punch_00",
+        "sfx_punch_01",
+        "sfx_punch_02",
+        "sfx_punch_03"
+    };
+    
+    [Tooltip("Звук последнего (5-го) удара")]
+    [SerializeField] private string lastPunchSound = "sfx_punch_04";
+
     private int currentHits;
     private bool canBeHit;
     private PulsingHighlight _highlight;
@@ -64,6 +77,13 @@ public class VillainController : MonoBehaviour
     {
         canBeHit = true;
         _highlight.StartHighlight();
+        Debug.Log("🎯 Targeting enabled with highlight");
+    }
+
+    public void EnableTargetingSilent()
+    {
+        canBeHit = true;
+        Debug.Log("🎯 Targeting enabled silently (no highlight until weapon pickup)");
     }
 
     public void TakeHit(Vector3 hitPoint)
@@ -71,6 +91,20 @@ public class VillainController : MonoBehaviour
         if (!canBeHit) return;
 
         currentHits++;
+
+        string soundToPlay;
+        if (currentHits >= hitsToDefeat)
+        {
+            soundToPlay = lastPunchSound;
+        }
+        else
+        {
+            int index = (currentHits - 1) % punchSounds.Length;
+            soundToPlay = punchSounds[index];
+        }
+
+        PlaySound(soundToPlay);
+        Debug.Log($"🔊 Hit {currentHits}/{hitsToDefeat} - playing {soundToPlay}");
 
         if (hitEffect != null)
         {
@@ -100,6 +134,16 @@ public class VillainController : MonoBehaviour
             {
                 Destroy(gameObject, 0.1f);
             }
+        }
+    }
+
+    private void PlaySound(string soundName)
+    {
+        if (string.IsNullOrEmpty(soundName)) return;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(soundName);
         }
     }
 

@@ -29,18 +29,15 @@ public class UIPanelManager : MonoBehaviour
 
     void Awake()
     {
-        // Скрываем панель настроек при старте
         settingsPanel.alpha = 0f;
         settingsPanel.interactable = false;
         settingsPanel.blocksRaycasts = false;
-        
-        // Сохраняем оригинальный цвет кнопки Mute
+
         if (muteButtonImage != null)
         {
             _originalMuteButtonColor = muteButtonImage.color;
         }
 
-        // Назначаем события на кнопки
         settingsButton.onClick.AddListener(ToggleSettingsPanel);
         closeSettingsButton.onClick.AddListener(ToggleSettingsPanel);
         muteButton.onClick.AddListener(ToggleMute);
@@ -48,7 +45,6 @@ public class UIPanelManager : MonoBehaviour
 
     void OnDestroy()
     {
-        // Отписываемся от событий
         settingsButton.onClick.RemoveListener(ToggleSettingsPanel);
         closeSettingsButton.onClick.RemoveListener(ToggleSettingsPanel);
         muteButton.onClick.RemoveListener(ToggleMute);
@@ -60,25 +56,22 @@ public class UIPanelManager : MonoBehaviour
 
         if (_isPanelOpen)
         {
-            // Открываем панель и ставим паузу
             Time.timeScale = 0f;
             settingsPanel.alpha = 1f;
             settingsPanel.interactable = true;
             settingsPanel.blocksRaycasts = true;
-            SetGameUIVisibility(false); // Скрываем игровой UI
+            SetGameUIVisibility(false); 
         }
         else
         {
-            // Закрываем панель и снимаем паузу
             Time.timeScale = 1f;
             settingsPanel.alpha = 0f;
             settingsPanel.interactable = false;
             settingsPanel.blocksRaycasts = false;
-            SetGameUIVisibility(true); // Показываем игровой UI
+            SetGameUIVisibility(true); 
         }
     }
 
-    // Вспомогательный метод для управления видимостью всех игровых панелей
     private void SetGameUIVisibility(bool visible)
     {
         foreach (var panel in gameUIPanels)

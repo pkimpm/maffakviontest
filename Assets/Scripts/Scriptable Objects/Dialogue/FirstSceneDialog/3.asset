@@ -26,5 +26,5 @@ MonoBehaviour:
   resumeCutsceneOnStart: 0
   blockContinueOnStart: 0
   blockUntilCutsceneEnd: 0
-  nextNode: {fileID: 11400000, guid: 12ab0f35ef221b647bf6a451109a5255, type: 2}
+  nextNode: {fileID: 11400000, guid: 2be94161dc6b37e44b9b8dcf692dd977, type: 2}
   isLast: 0

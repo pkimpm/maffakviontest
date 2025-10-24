@@ -28,6 +28,9 @@ public class PuzzlePiece : MonoBehaviour
     [SerializeField, Tooltip("Время для промотки VFX (в секундах)")]
     private float vfxSimulateTime = 600.0f;
 
+    [Header("Звуки")] // 🔥 НОВЫЙ РАЗДЕЛ
+    [SerializeField] private string clickOnPlacedPieceSound = "sound_ui_buttonclick_add";
+
     [HideInInspector] public PuzzleManager Manager;
     public HintData PieceHint => pieceHint;
 
@@ -56,11 +59,22 @@ public class PuzzlePiece : MonoBehaviour
         if (Manager == null || !Manager.IsInteractable || isPlacedCorrectly)
         {
             if (isPlacedCorrectly && pieceHint != null)
+            {
+                // 🔥 НОВОЕ: Проигрываем звук при клике на установленный кусок
+                PlaySound(clickOnPlacedPieceSound);
+                Debug.Log($"🔊 Clicked on placed piece - playing {clickOnPlacedPieceSound}");
+                
                 HintManager.Instance.ShowHint(pieceHint, HintManager.HintButtonType.Close);
+            }
             return;
         }
 
         isDragging = true;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayUI("sound_ui_puzzledrug");
+        }
 
         StopVFX(pieceVFX1);
         StopVFX(pieceVFX2);
@@ -110,6 +124,11 @@ public class PuzzlePiece : MonoBehaviour
         }
         else
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayUI("sound_ui_puzzledrop");
+            }
+
             if (returnCoroutine != null) StopCoroutine(returnCoroutine);
             returnCoroutine = StartCoroutine(ReturnToInitial());
         }
@@ -119,6 +138,11 @@ public class PuzzlePiece : MonoBehaviour
     {
         if (slot.Occupied && slot != currentSlot)
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayUI("sound_ui_puzzledrop");
+            }
+
             if (returnCoroutine != null) StopCoroutine(returnCoroutine);
             returnCoroutine = StartCoroutine(ReturnToInitial());
             return;
@@ -144,9 +168,21 @@ public class PuzzlePiece : MonoBehaviour
 
         if (isPlacedCorrectly)
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayUI("sound_ui_puzzledone");
+            }
+
             Manager?.OnPiecePlaced(this);
             ControlVFXByName(gameObject, "VFX", false);
             slot.ControlChildVFX("VFX", false);
+        }
+        else
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayUI("sound_ui_puzzledrop");
+            }
         }
     }
 
@@ -270,5 +306,15 @@ public class PuzzlePiece : MonoBehaviour
             local.z = 0f;
         }
         return moveContainer.TransformPoint(local);
+    }
+
+    private void PlaySound(string soundName)
+    {
+        if (string.IsNullOrEmpty(soundName)) return;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayUI(soundName);
+        }
     }
 }
